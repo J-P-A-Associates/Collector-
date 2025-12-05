@@ -19,46 +19,66 @@ export default function NewCollection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    console.log('User:', user)
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
+    console.log('User object:', user)  // Debug: check if user exists
     if (authError || !user) {
-      alert('Not logged in')
+      alert('Not logged in - please log in again')
       setLoading(false)
       return
     }
 
-    const { error } = await supabase
+    const insertData = {
+      user_id: user.id,
+      name: name.trim(),
+      category,
+      subcategory: subcategory.trim() || null,
+      is_public: isPublic
+    }
+    console.log('Inserting data:', insertData)  // Debug: check what we're sending
+
+    const { data, error } = await supabase
       .from('collections')
-      .insert({
-        user_id: user.id,                    // ← guaranteed UUID
-        name: name.trim(),
-        category,
-        subcategory: subcategory.trim() || null,
-        is_public: isPublic
-      })
+      .insert(insertData)
+      .select()
+
+    console.log('Supabase response:', { data, error })  // Debug: see what Supabase returns
 
     if (error) {
-  console.error('Supabase insert error:', error)
-  alert('Error: ' + error.message + ' (check browser console)')
-}
-    } else {
-          if (error) {
       console.error('Supabase insert error:', error)
-    else {
-      router.push('/dashboard')
-      // Force full page reload so the server component sees the new collection
-      window.location.href = '/dashboard'
+      alert('Error: ' + error.message + ' (check console for details)')
+    } else {
+      console.log('Collection created:', data)
+      window.location.href = '/dashboard'  // Hard reload to see the new collection
     }
     setLoading(false)
   }
 
-  // rest of return() is unchanged — keep exactly what you have
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Create New Collection</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* ... all your inputs exactly as before ... */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Collection Name *</label>
+          <input required value={name} onChange={e=>setName(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg" placeholder="Bob's Pokémon Cards" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Category *</label>
+          <select value={category} onChange={e=>setCategory(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg">
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Subcategory (optional)</label>
+          <input value={subcategory} onChange={e=>setSubcategory(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg" placeholder="Vintage Base Set" />
+        </div>
+        <label className="flex items-center gap-3">
+          <input type="checkbox" checked={isPublic} onChange={e=>setIsPublic(e.target.checked)} />
+          <span>Make collection public</span>
+        </label>
         <button type="submit" disabled={loading}
           className="w-full bg-black text-white py-3 rounded-lg font-medium disabled:opacity-50">
           {loading ? 'Creating...' : 'Create Collection'}
