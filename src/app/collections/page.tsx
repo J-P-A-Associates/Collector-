@@ -19,11 +19,30 @@ export default function NewCollection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      alert('You must be logged in')
+      setLoading(false)
+      return
+    }
+
     const { error } = await supabase
       .from('collections')
-      .insert({ name, category, subcategory: subcategory || null, is_public: isPublic })
-    if (error) alert(error.message)
-    else router.push('/dashboard')
+      .insert({ 
+        user_id: user.id,           // ← THIS LINE WAS MISSING
+        name, 
+        category, 
+        subcategory: subcategory || null, 
+        is_public: isPublic 
+      })
+
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      router.push('/dashboard')
+      router.refresh()   // forces the dashboard to reload fresh data
+    }
     setLoading(false)
   }
 
@@ -40,7 +59,7 @@ export default function NewCollection() {
           <label className="block text-sm font-medium mb-2">Category *</label>
           <select value={category} onChange={e=>setCategory(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg">
-            {categories.map(c => <option key={c}>{c}</option>)}
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div>
@@ -50,7 +69,7 @@ export default function NewCollection() {
         </div>
         <label className="flex items-center gap-3">
           <input type="checkbox" checked={isPublic} onChange={e=>setIsPublic(e.target.checked)} />
-          <span>Make collection public (visible to others)</span>
+          <span>Make collection public</span>
         </label>
         <button type="submit" disabled={loading}
           className="w-full bg-black text-white py-3 rounded-lg font-medium disabled:opacity-50">
