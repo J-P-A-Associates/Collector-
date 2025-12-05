@@ -19,6 +19,7 @@ export default function NewCollection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    console.log('User:', user)
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -38,11 +39,16 @@ export default function NewCollection() {
       })
 
     if (error) {
-      alert('Error: ' + error.message)
-      console.error(error)
+  console.error('Supabase insert error:', error)
+  alert('Error: ' + error.message + ' (check browser console)')
+}
     } else {
+          if (error) {
+      console.error('Supabase insert error:', error)
+    else {
       router.push('/dashboard')
-      router.refresh()   // forces fresh data
+      // Force full page reload so the server component sees the new collection
+      window.location.href = '/dashboard'
     }
     setLoading(false)
   }
