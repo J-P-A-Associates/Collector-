@@ -1,85 +1,43 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import Link from 'next/link'
 
-const categories = [
-  'Trading Cards','Coins','Stamps','Comics','Figurines','Art','Wine','Watches','Other'
-]
+export default async function CollectionsPage() {
+  const supabase = createServerComponentClient({ cookies })
+  const { data: { user } } = await supabase.auth.getUser()
 
-export default function NewCollection() {
-  const [name, setName] = useState('')
-  const [category, setCategory] = useState('Trading Cards')
-  const [subcategory, setSubcategory] = useState('')
-  const [isPublic, setIsPublic] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const supabase = createClientComponentClient()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    console.log('Form submitted — starting insert')
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('User:', user)
-
-    if (!user) {
-      alert('Not logged in')
-      setLoading(false)
-      return
-    }
-
-    const payload = {
-      user_id: user.id,
-      name: name.trim(),
-      category,
-      subcategory: subcategory.trim() || null,
-      is_public: isPublic
-    }
-    console.log('Sending payload:', payload)
-
-    const { data, error } = await supabase
-      .from('collections')
-      .insert(payload)
-      .select()
-
-    console.log('Supabase response:', { data, error })
-
-    if (error) {
-      alert('Error: ' + error.message)
-      console.error('Full error:', error)
-    } else {
-      console.log('SUCCESS! Collection created:', data)
-      window.location.href = '/dashboard'  // hard redirect = guaranteed fresh data
-    }
-    setLoading(false)
-  }
+  const { data: collections } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('user_id', user?.id)
+    .order('created_at', { ascending: false })
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Create New Collection</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">Collection Name *</label>
-          <input required value={name} onChange={e=>setName(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg" placeholder="Bob's Pokémon Cards" />
+    <div className="p-8 max-w-6xl mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">Your Collections</h1>
+        <Link href="/collections/new" className="bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800">
+          + New Collection
+        </Link>
+      </div>
+
+      {collections?.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-xl text-gray-600">No collections yet. Create your first one!</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Category *</label>
-          <select value={category} onChange={e=>setCategory(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg">
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {collections?.map((c) => (
+            <div key={c.id} className="border rounded-lg p-6 bg-white shadow hover:shadow-lg transition">
+              <h3 className="text-2xl font-bold">{c.name}</h3>
+              <p className="text-gray-600">
+                {c.category}{c.subcategory && ` – ${c.subcategory}`}
+              </p>
+              <p className="text-sm mt-2">{c.is_public ? 'Public' : 'Private'}</p>
+            </div>
+          ))}
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Subcategory (optional)</label>
-          <input value={subcategory} onChange={e=>setSubcategory(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg" placeholder="Vintage Base Set" />
-        </div>
-        <label className="flex items-center gap-3">
-          <input type="checkbox" checked={isPublic} onChange={e=>setIsPublic(e.target.checked)} />
-          <span>Make collection public</span>
-        </label>
-        <button type="submit" disabled={loading}
-          className="w
+      )}
+    </div>
+  )
+}
