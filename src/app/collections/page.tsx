@@ -9,7 +9,7 @@ export default async function CollectionsPage() {
   const { data: collections } = await supabase
     .from('collections')
     .select('*')
-    .eq('user_id', user?.id || '')
+    .eq('user_id', user?.id!)   // ← THIS LINE FIXED IT
     .order('created_at', { ascending: false })
 
   return (
@@ -26,9 +26,11 @@ export default async function CollectionsPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {collections.map((c) => (
-            <div key={c.id} className="border rounded-lg p-6 bg-white shadow hover:shadow-lg">
+            <div key={c.id} className="border rounded-lg p-6 bg-white shadow hover:shadow-lg transition">
               <h3 className="text-2xl font-bold">{c.name}</h3>
-              <p className="text-gray-600">{c.category} {c.subcategory && `– ${c.subcategory}`}</p>
+              <p className="text-gray-600">
+                {c.category} {c.subcategory && `– ${c.subcategory}`}
+              </p>
               <p className="text-sm mt-2">{c.is_public ? 'Public' : 'Private'}</p>
             </div>
           ))}
