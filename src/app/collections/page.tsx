@@ -19,37 +19,39 @@ export default function NewCollection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    console.log('Form submitted — starting insert')
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('User object:', user)  // Debug: check if user exists
-    if (authError || !user) {
-      alert('Not logged in - please log in again')
+    console.log('User:', user)
+
+    if (!user) {
+      alert('Not logged in')
       setLoading(false)
       return
     }
 
-    const insertData = {
+    const payload = {
       user_id: user.id,
       name: name.trim(),
       category,
       subcategory: subcategory.trim() || null,
       is_public: isPublic
     }
-    console.log('Inserting data:', insertData)  // Debug: check what we're sending
+    console.log('Sending payload:', payload)
 
     const { data, error } = await supabase
       .from('collections')
-      .insert(insertData)
+      .insert(payload)
       .select()
 
-    console.log('Supabase response:', { data, error })  // Debug: see what Supabase returns
+    console.log('Supabase response:', { data, error })
 
     if (error) {
-      console.error('Supabase insert error:', error)
-      alert('Error: ' + error.message + ' (check console for details)')
+      alert('Error: ' + error.message)
+      console.error('Full error:', error)
     } else {
-      console.log('Collection created:', data)
-      window.location.href = '/dashboard'  // Hard reload to see the new collection
+      console.log('SUCCESS! Collection created:', data)
+      window.location.href = '/dashboard'  // hard redirect = guaranteed fresh data
     }
     setLoading(false)
   }
@@ -80,10 +82,4 @@ export default function NewCollection() {
           <span>Make collection public</span>
         </label>
         <button type="submit" disabled={loading}
-          className="w-full bg-black text-white py-3 rounded-lg font-medium disabled:opacity-50">
-          {loading ? 'Creating...' : 'Create Collection'}
-        </button>
-      </form>
-    </div>
-  )
-}
+          className="w
