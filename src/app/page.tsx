@@ -1,15 +1,16 @@
-import { redirect } from 'next/navigation'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
 export default async function Home() {
   const supabase = createServerComponentClient({ cookies })
   const { data: { user } } = await supabase.auth.getUser()
 
-  // If logged in, redirect to dashboard
-  if (user) redirect('/collections')
+  if (user) {
+    redirect('/collections')  // Logged-in users go straight to dashboard
+  }
 
-  // If not logged in, show the landing page
+  // Guests see the landing page
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <h1 className="text-5xl font-bold mb-4">Collectors App</h1>
