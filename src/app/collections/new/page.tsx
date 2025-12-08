@@ -41,7 +41,9 @@ export default function NewCollection() {
       alert('Error: ' + error.message)
       console.error(error)
     } else {
-      window.location.href = '/collections'  // hard redirect = fresh data
+      // THIS IS THE ONLY REDIRECT THAT NEVER FAILS IN NEXT.JS APP ROUTER
+      router.push('/collections')
+      router.refresh()   // forces the server component to re-fetch fresh data
     }
     setLoading(false)
   }
