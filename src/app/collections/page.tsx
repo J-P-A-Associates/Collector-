@@ -2,7 +2,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'  // ← Add this line to fix the error
+export const dynamic = 'force-dynamic'  // If you need this for dynamic rendering
 
 export default async function CollectionsPage() {
   const supabase = createServerComponentClient({ cookies })
@@ -27,7 +27,7 @@ export default async function CollectionsPage() {
         <p className="text-xl text-gray-600">No collections yet. Create your first one!</p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {collections.map((c) => (
+          {collections && collections.map((c) => (  // ← Add null check here: collections &&
             <div key={c.id} className="border rounded-lg p-6 bg-white shadow hover:shadow-lg transition">
               <h3 className="text-2xl font-bold">{c.name}</h3>
               <p className="text-gray-600">{c.category} {c.subcategory && `– ${c.subcategory}`}</p>
