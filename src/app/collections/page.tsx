@@ -2,7 +2,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'  // If you need this for dynamic rendering
+export const dynamic = 'force-dynamic'  // This stops the DynamicServerError
 
 export default async function CollectionsPage() {
   const supabase = createServerComponentClient({ cookies })
@@ -11,7 +11,7 @@ export default async function CollectionsPage() {
   const { data: collections } = await supabase
     .from('collections')
     .select('*')
-    .eq('user_id', user?.id!)
+    .eq('user_id', user?.id || '')
     .order('created_at', { ascending: false })
 
   return (
@@ -23,14 +23,14 @@ export default async function CollectionsPage() {
         </Link>
       </div>
 
-      {collections?.length === 0 ? (
+      {(!collections || collections.length === 0) ? (
         <p className="text-xl text-gray-600">No collections yet. Create your first one!</p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {collections && collections.map((c) => (  // ← Add null check here: collections &&
+          {collections.map((c) => (
             <div key={c.id} className="border rounded-lg p-6 bg-white shadow hover:shadow-lg transition">
               <h3 className="text-2xl font-bold">{c.name}</h3>
-              <p className="text-gray-600">{c.category} {c.subcategory && `– ${c.subcategory}`}</p>
+              <p className="text-gray-600">{c.category}{c.subcategory && ` – ${c.subcategory}`}</p>
               <p className="text-sm mt-2">{c.is_public ? 'Public' : 'Private'}</p>
             </div>
           ))}
