@@ -40,10 +40,10 @@ export default function NewCollection() {
     if (error) {
       alert('Error: ' + error.message)
       console.error(error)
-    } else {
-      // THIS IS THE ONLY REDIRECT THAT NEVER FAILS IN NEXT.JS APP ROUTER
+        } else {
       router.push('/collections')
-      router.refresh()   // forces the server component to re-fetch fresh data
+      router.refresh()
+      setTimeout(() => router.push('/collections'), 100)
     }
     setLoading(false)
   }
