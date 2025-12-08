@@ -38,15 +38,13 @@ export default function NewCollection() {
         type: 'collection'  // ← This fixes the null error
       })
 
-    if (error) {
+        if (error) {
       alert('Error: ' + error.message)
       console.error(error)
     } else {
-      router.push('/collections')
-      router.refresh()
+      router.push('/collections')   // go to dashboard
+      router.refresh()              // instantly show the new collection
     }
-    setLoading(false)
-  }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
