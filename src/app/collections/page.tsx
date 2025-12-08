@@ -37,5 +37,11 @@ export default async function CollectionsPage() {
         </div>
       )}
     </div>
+    <button onClick={async () => {
+  await supabase.auth.signOut()
+  window.location.href = '/'
+}} className="bg-red-500 text-white px-6 py-3 rounded-lg mt-8">
+  Log Out
+</button>
   )
 }
