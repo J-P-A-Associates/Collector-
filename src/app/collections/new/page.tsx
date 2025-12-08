@@ -34,16 +34,15 @@ export default function NewCollection() {
         name: name.trim(),
         category,
         subcategory: subcategory.trim() || null,
-        is_public: isPublic
+        is_public: isPublic,
+        type: 'collection'  // ← THIS FIXES THE "type" ERROR
       })
 
     if (error) {
       alert('Error: ' + error.message)
       console.error(error)
-        } else {
-      router.push('/collections')
-      router.refresh()
-      setTimeout(() => router.push('/collections'), 100)
+    } else {
+      window.location.href = '/collections'  // hard redirect = fresh data
     }
     setLoading(false)
   }
