@@ -1,7 +1,7 @@
 'use client'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export default function Logout() {
   const router = useRouter()
@@ -10,13 +10,8 @@ export default function Logout() {
   useEffect(() => {
     supabase.auth.signOut().then(() => {
       router.push('/')
-      router.refresh()
     })
   }, [supabase, router])
 
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p className="text-xl">Logging you out...</p>
-    </div>
-  )
+  return <p>Logging out...</p>
 }
