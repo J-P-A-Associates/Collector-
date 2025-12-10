@@ -10,8 +10,9 @@ export default function Logout() {
   useEffect(() => {
     supabase.auth.signOut().then(() => {
       router.push('/')
+      router.refresh()
     })
   }, [supabase, router])
 
-  return <p>Logging out...</p>
+  return <p className="text-center mt-20">Logging you out...</p>
 }
