@@ -48,6 +48,9 @@ export default async function CollectionsPage() {
       >
         Log Out
       </Link>
+      <Link href="/logout" className="fixed bottom-8 right-8 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-700 font-medium z-50">
+  Log Out
+</Link>
     </div>
   )
 }
