@@ -14,7 +14,8 @@ export default async function CollectionsPage() {
     .eq('user_id', user?.id!)
     .order('created_at', { ascending: false })
 
-  const handleDelete = async (id: string) => {
+  // Server action for deleting a collection
+  const deleteCollection = async (id: string) => {
     'use server'
     await supabase.from('collections').delete().eq('id', id)
   }
@@ -29,43 +30,44 @@ export default async function CollectionsPage() {
       </div>
 
       {(!collections || collections.length === 0) ? (
-        <p className="text-xl text-center py-12 text-gray-600">
+        <p className="text-center py-12 text-xl text-gray-600">
           No collections yet. Create your first one!
         </p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {collections.map((c) => (
-            <Link key={c.id} href={`/collections/${c.id}`} className="block group">
-              <div className="border rounded-lg p-6 bg-white shadow hover:shadow-xl transition">
-                <h3 className="text-2xl font-bold group-hover:text-blue-600">{c.name}</h3>
-                <p className="text-gray-600 mt-1">
+            <div key={c.id} className="border rounded-xl p-6 bg-white shadow-lg hover:shadow-xl transition">
+              <Link href={`/collections/${c.id}`} className="block">
+                <h3 className="text-2xl font-bold mb-2 hover:text-blue-600">{c.name}</h3>
+                <p className="text-gray-600 mb-1">
                   {c.category}{c.subcategory && ` – ${c.subcategory}`}
                 </p>
-                <p className="text-sm mt-2">{c.is_public ? 'Public' : 'Private'}</p>
+                <p className="text-sm text-gray-500">{c.is_public ? 'Public' : 'Private'}</p>
+              </Link>
 
-                {/* Delete Button */}
-                <form action={handleDelete.bind(null, c.id)} className="mt-4">
-                  <button
-                    type="submit"
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Delete Collection
-                  </button>
-                </form>
-              </div>
-            </Link>
+              {/* DELETE BUTTON */}
+              <form action={deleteCollection.bind(null, c.id)} className="mt-4">
+                <button
+                  type="submit"
+                  className="text-red-600 hover:text-red-800 font-medium text-sm"
+                >
+                  Delete Collection
+                </button>
+              </form>
+            </div>
           ))}
         </div>
       )}
 
-      {/* SINGLE, CLEAN LOGOUT BUTTON */}
-      <Link
-        href="/logout"
-        className="fixed bottom-8 right-8 bg-red-600 text-white px-7 py-4 rounded-full rounded-full shadow-2xl hover:bg-red-700 font-medium text-lg z-50"
-      >
-        Log Out
-      </Link>
+      {/* LOGOUT BUTTON — ALWAYS VISIBLE */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <Link
+          href="/logout"
+          className="bg-red-600 text-white px-7 py-4 rounded-full shadow-2xl hover:bg-red-700 font-semibold text-lg flex items-center gap-2"
+        >
+          Log Out
+        </Link>
+      </div>
     </div>
   )
 }
