@@ -41,10 +41,9 @@ export default function NewCollection() {
         if (error) {
       alert('Error: ' + error.message)
       console.error(error)
-        } else {
-      // Instant redirect + refresh — no manual reload needed
+            } else {
       router.push('/collections')
-      router.refresh()
+      router.refresh()  // This forces instant refresh — no manual needed
     }
   return (
     <div className="max-w-2xl mx-auto p-6">
